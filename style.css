@@ -1,0 +1,180 @@
+:root {
+  --navy: #1f2d4a;
+  --navy-deep: #16213a;
+  --navy-soft: #3a4a6b;
+  --beige: #f3ece0;
+  --beige-deep: #e6dccb;
+  --white: #ffffff;
+  --accent: #b9854a;
+  --text: #1f2d4a;
+  --muted: #6b7388;
+  --radius: 20px;
+  --sat: env(safe-area-inset-top, 0px);
+  --sab: env(safe-area-inset-bottom, 0px);
+}
+
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body { margin: 0; height: 100%; }
+body {
+  background: var(--beige);
+  color: var(--text);
+  font-family: "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Noto Sans JP", "Yu Gothic", "Meiryo", sans-serif;
+  font-size: 18px;
+  line-height: 1.6;
+  -webkit-text-size-adjust: 100%;
+  overscroll-behavior-y: none;
+}
+[hidden] { display: none !important; }
+
+.screen {
+  position: fixed; inset: 0;
+  display: flex; flex-direction: column;
+  padding: calc(var(--sat) + 12px) 20px calc(var(--sab) + 16px);
+  max-width: 560px; margin: 0 auto;
+  overflow: hidden;
+}
+
+/* ---------- ボタン ---------- */
+.btn {
+  font: inherit; font-weight: 700;
+  min-height: 60px; padding: 12px 18px;
+  border-radius: 16px; border: 2px solid transparent;
+  cursor: pointer; width: 100%;
+  transition: transform .08s ease, background .15s ease;
+}
+.btn:active { transform: scale(.98); }
+.btn:focus-visible, .back-btn:focus-visible, .tab:focus-visible, .opt:focus-visible, .link-btn:focus-visible {
+  outline: 3px solid var(--accent); outline-offset: 2px;
+}
+.btn-primary { background: var(--navy); color: var(--white); }
+.btn-primary:active { background: var(--navy-deep); }
+.btn-sub { background: var(--white); color: var(--navy); border-color: var(--beige-deep); font-size: 16px; line-height: 1.4; }
+.btn-xl { min-height: 72px; font-size: 22px; letter-spacing: .06em; }
+.count { display: inline-block; margin-left: 6px; font-size: 14px; color: var(--muted); font-weight: 500; }
+.link-btn {
+  font: inherit; background: none; border: 0; color: var(--navy-soft);
+  text-decoration: underline; padding: 10px; min-height: 44px; cursor: pointer;
+}
+
+/* ---------- ホーム ---------- */
+#screen-home { justify-content: space-between; overflow-y: auto; }
+.home-top { text-align: center; padding-top: 4vh; }
+.eyebrow { margin: 0; font-size: 14px; letter-spacing: .2em; color: var(--muted); }
+.logo {
+  margin: 14px 0 6px; font-size: 46px; line-height: 1.1; letter-spacing: .14em;
+  font-weight: 800; color: var(--navy);
+  font-family: "Hiragino Mincho ProN", "Noto Serif JP", "Yu Mincho", serif;
+}
+.lead { margin: 0; font-size: 16px; color: var(--navy-soft); letter-spacing: .3em; }
+.home-mid { text-align: center; margin: 18px 0; }
+.filter-note { margin: 12px 0 0; font-size: 15px; color: var(--muted); }
+.home-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.progress-home { text-align: center; margin: 14px 0 4px; font-size: 16px; color: var(--navy-soft); font-weight: 600; }
+.foot-note { text-align: center; margin: 4px 0 0; font-size: 13px; color: var(--muted); line-height: 1.7; }
+
+/* ---------- トップバー ---------- */
+.topbar { display: flex; align-items: center; justify-content: space-between; min-height: 52px; }
+.back-btn {
+  font: inherit; font-weight: 700; color: var(--navy);
+  background: var(--white); border: 2px solid var(--beige-deep);
+  border-radius: 14px; min-height: 48px; padding: 6px 16px; cursor: pointer;
+}
+.progress { font-size: 17px; font-weight: 700; color: var(--navy); }
+.topbar-title { font-size: 18px; font-weight: 700; }
+.progress-bar { height: 6px; background: var(--beige-deep); border-radius: 3px; margin: 8px 0 0; overflow: hidden; }
+.progress-bar > div { height: 100%; width: 0; background: var(--accent); transition: width .3s ease; }
+
+/* ---------- カード ---------- */
+.card-area { flex: 1; display: flex; flex-direction: column; justify-content: center; gap: 14px; min-height: 0; overflow-y: auto; padding: 14px 12px; margin: 0 -12px; }
+.card {
+  background: var(--white); border-radius: 26px;
+  box-shadow: 0 10px 30px rgba(31,45,74,.12);
+  padding: 26px 24px 30px; min-height: 40vh;
+  display: flex; flex-direction: column; justify-content: space-between;
+}
+.card-meta { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
+.chip { background: var(--beige); color: var(--navy); font-weight: 700; font-size: 15px; padding: 6px 14px; border-radius: 999px; }
+.level { font-size: 14px; color: var(--accent); font-weight: 800; letter-spacing: .08em; }
+.card-text {
+  flex: 1; display: flex; align-items: center;
+  margin: 26px 0 16px; font-size: 27px; line-height: 1.65; font-weight: 700; letter-spacing: .02em;
+  font-family: "Hiragino Mincho ProN", "Noto Serif JP", "Yu Mincho", serif;
+  word-break: auto-phrase; overflow-wrap: anywhere;
+}
+.card-sub { margin: 0; text-align: right; font-size: 13px; color: var(--muted); }
+.card.empty { text-align: center; }
+.card::before { content: ""; display: block; width: 44px; height: 5px; border-radius: 3px; background: var(--accent); margin-bottom: 16px; }
+.card.empty .card-text { justify-content: center; }
+
+.deep { background: var(--navy); color: var(--white); border-radius: 18px; padding: 14px 20px 16px; }
+.deep-label { display: inline-block; font-size: 12px; letter-spacing: .15em; color: var(--beige-deep); }
+.deep p { margin: 4px 0 0; font-size: 22px; font-weight: 700; line-height: 1.5; }
+
+.card-actions { display: flex; flex-direction: column; gap: 10px; }
+.row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.btn-fav { background: var(--white); color: var(--navy); border-color: var(--beige-deep); font-size: 16px; }
+.btn-fav .star { font-size: 22px; vertical-align: -2px; }
+.btn-fav.on { background: #fff6e3; border-color: var(--accent); color: #8a5a22; }
+.btn-deepbtn { background: var(--beige-deep); color: var(--navy); font-size: 16px; }
+.skip-note { margin: 0; text-align: center; font-size: 13px; color: var(--muted); }
+
+/* ---------- 一覧 ---------- */
+.scroll { flex: 1; overflow-y: auto; padding: 8px 0 16px; -webkit-overflow-scrolling: touch; }
+.sec-title { font-size: 15px; letter-spacing: .1em; color: var(--muted); margin: 18px 4px 10px; font-weight: 700; }
+.list { display: flex; flex-direction: column; gap: 8px; }
+.opt {
+  font: inherit; text-align: left; width: 100%; cursor: pointer;
+  background: var(--white); color: var(--navy);
+  border: 2px solid var(--beige-deep); border-radius: 14px;
+  min-height: 56px; padding: 10px 16px;
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
+}
+.opt .sub { display: block; font-size: 13px; color: var(--muted); font-weight: 400; }
+.opt .name { font-weight: 700; }
+.opt .num { font-size: 13px; color: var(--muted); white-space: nowrap; }
+.opt[aria-pressed="true"] { border-color: var(--navy); background: var(--navy); color: var(--white); }
+.opt[aria-pressed="true"] .sub, .opt[aria-pressed="true"] .num { color: var(--beige-deep); }
+.pick-summary { text-align: center; color: var(--navy-soft); font-size: 15px; margin: 0 0 8px; font-weight: 600; }
+.bottom-bar { padding-top: 8px; }
+
+.tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 8px 0 4px; }
+.tab {
+  font: inherit; font-weight: 700; min-height: 52px; border-radius: 14px; cursor: pointer;
+  background: var(--white); color: var(--navy); border: 2px solid var(--beige-deep);
+}
+.tab[aria-selected="true"] { background: var(--navy); color: var(--white); border-color: var(--navy); }
+
+.q-item { background: var(--white); border-radius: 16px; padding: 14px 16px; margin-bottom: 10px; display: flex; gap: 12px; align-items: flex-start; box-shadow: 0 2px 8px rgba(31,45,74,.06); }
+.q-body { flex: 1; min-width: 0; }
+.q-meta { font-size: 13px; color: var(--muted); margin-bottom: 4px; }
+.q-text { font-size: 18px; font-weight: 600; line-height: 1.6; overflow-wrap: anywhere; }
+.q-star {
+  font: inherit; font-size: 28px; line-height: 1; background: none; border: 0; cursor: pointer;
+  min-width: 48px; min-height: 48px; color: var(--accent);
+}
+.empty-msg { text-align: center; color: var(--muted); padding: 40px 10px; line-height: 1.9; }
+.list-foot { margin-top: 16px; }
+.list-foot .btn { min-height: 52px; font-size: 15px; }
+
+/* ---------- ダイアログ・トースト ---------- */
+.modal { position: fixed; inset: 0; background: rgba(22,33,58,.55); display: flex; align-items: center; justify-content: center; padding: 24px; z-index: 50; }
+.modal-box { background: var(--white); border-radius: 22px; padding: 24px 22px 20px; width: 100%; max-width: 420px; }
+.modal-box h3 { margin: 0 0 8px; font-size: 20px; }
+.modal-box p { margin: 0 0 18px; font-size: 16px; color: var(--navy-soft); line-height: 1.7; }
+.modal-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.toast {
+  position: fixed; left: 50%; bottom: calc(var(--sab) + 110px); transform: translate(-50%, 20px);
+  background: var(--navy-deep); color: var(--white); padding: 12px 20px; border-radius: 999px;
+  font-size: 15px; opacity: 0; pointer-events: none; transition: all .25s ease; z-index: 60; max-width: 90%; text-align: center;
+}
+.toast.show { opacity: 1; transform: translate(-50%, 0); }
+
+@media (max-height: 700px) {
+  .logo { font-size: 38px; }
+  .card-text { font-size: 23px; margin: 18px 0 10px; }
+  .card { min-height: 32vh; padding: 20px 20px 22px; }
+  .btn-xl { min-height: 64px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; }
+}

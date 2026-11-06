@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>KIZUKI CARD</title>
+<meta name="description" content="振り返り会で使う、気づきの質問カードアプリ">
+<meta name="theme-color" content="#1f2d4a">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="KIZUKI CARD">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- ① ホーム -->
+<section id="screen-home" class="screen" aria-label="ホーム">
+  <div class="home-top">
+    <p class="eyebrow">対話のための質問カード</p>
+    <h1 class="logo">KIZUKI<br>CARD</h1>
+    <p class="lead">気づきカード</p>
+  </div>
+
+  <div class="home-mid">
+    <button class="btn btn-primary btn-xl" id="home-draw">カードを引く</button>
+    <p class="filter-note" id="home-filter">全カテゴリー ／ 全レベル</p>
+    <button class="link-btn" id="home-resume" hidden>いまのカードを見る</button>
+  </div>
+
+  <div class="home-grid">
+    <button class="btn btn-sub" id="home-pick">カテゴリーと<br>レベルを選ぶ</button>
+    <button class="btn btn-sub" id="home-fav">お気に入り<span class="count" id="home-fav-count"></span></button>
+    <button class="btn btn-sub" id="home-history">履歴<span class="count" id="home-history-count"></span></button>
+    <button class="btn btn-sub" id="home-reset">最初からやり直す</button>
+  </div>
+
+  <p class="progress-home" id="home-progress"></p>
+  <p class="foot-note">答えたくない質問はスキップしてOK。<br>入力内容は、この端末の中だけに保存されます。</p>
+</section>
+
+<!-- ② カード表示 -->
+<section id="screen-card" class="screen" aria-label="カード" hidden>
+  <header class="topbar">
+    <button class="back-btn" data-go="home" aria-label="ホームに戻る">‹ ホーム</button>
+    <div class="progress" id="card-progress" aria-live="polite"></div>
+  </header>
+
+  <div class="progress-bar" aria-hidden="true"><div id="card-bar"></div></div>
+
+  <main class="card-area">
+    <article class="card" id="card" aria-live="polite">
+      <div class="card-meta">
+        <span class="chip" id="card-cat"></span>
+        <span class="level" id="card-level"></span>
+      </div>
+      <p class="card-text" id="card-text"></p>
+      <p class="card-sub" id="card-sub"></p>
+    </article>
+
+    <div class="deep" id="deep" hidden>
+      <span class="deep-label">補助質問</span>
+      <p id="deep-text"></p>
+    </div>
+  </main>
+
+  <div class="card-actions">
+    <div class="row2">
+      <button class="btn btn-fav" id="card-fav" aria-pressed="false"><span class="star">☆</span> お気に入り</button>
+      <button class="btn btn-deepbtn" id="card-deepbtn">もう一歩深掘り</button>
+    </div>
+    <button class="btn btn-primary btn-xl" id="card-next">次のカード</button>
+    <p class="skip-note">答えにくいときは、そのまま次のカードへ</p>
+  </div>
+</section>
+
+<!-- ③ カテゴリー・レベル選択 -->
+<section id="screen-pick" class="screen" aria-label="カテゴリーとレベルの選択" hidden>
+  <header class="topbar">
+    <button class="back-btn" data-go="home" aria-label="ホームに戻る">‹ ホーム</button>
+    <div class="topbar-title">カードを選ぶ</div>
+  </header>
+  <main class="scroll">
+    <h2 class="sec-title">カテゴリー</h2>
+    <div class="list" id="pick-cats"></div>
+
+    <h2 class="sec-title">レベル（質問の深さ）</h2>
+    <div class="list" id="pick-levels"></div>
+  </main>
+  <div class="bottom-bar">
+    <p class="pick-summary" id="pick-summary"></p>
+    <button class="btn btn-primary btn-xl" id="pick-go">この条件で引く</button>
+  </div>
+</section>
+
+<!-- ④ お気に入り・履歴 -->
+<section id="screen-lists" class="screen" aria-label="お気に入りと履歴" hidden>
+  <header class="topbar">
+    <button class="back-btn" data-go="home" aria-label="ホームに戻る">‹ ホーム</button>
+    <div class="topbar-title">記録</div>
+  </header>
+  <div class="tabs" role="tablist">
+    <button class="tab" role="tab" id="tab-fav" data-tab="fav">お気に入り</button>
+    <button class="tab" role="tab" id="tab-history" data-tab="history">履歴</button>
+  </div>
+  <main class="scroll" id="list-body"></main>
+</section>
+
+<!-- 確認ダイアログ -->
+<div class="modal" id="modal" hidden>
+  <div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <h3 id="modal-title"></h3>
+    <p id="modal-body"></p>
+    <div class="modal-btns">
+      <button class="btn btn-sub" id="modal-cancel">やめる</button>
+      <button class="btn btn-primary" id="modal-ok">OK</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script src="data.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
