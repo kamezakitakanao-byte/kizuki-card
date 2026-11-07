@@ -258,7 +258,7 @@ const TEAM_QUESTIONS = TEAM_RAW.map((q, i) => ({ id: i + 1, category: q[0], leve
 /* ================= デッキ一覧 ================= */
 const DECKS = {
   kai: {
-    id: "kai", label: "ふりかえり会版", short: "100問",
+    id: "kai", label: "ふりかえり版", short: "100問",
     categories: CATEGORIES, levels: LEVELS, followups: FOLLOWUPS, questions: QUESTIONS,
     sub: "対話のための質問カード"
   },

@@ -3,7 +3,7 @@
 (function () {
   "use strict";
 
-  // ふりかえり会版は従来のキーをそのまま使う（既存の保存データを壊さない）
+  // ふりかえり版は従来のキーをそのまま使う（既存の保存データを壊さない）
   function keysFor(id) {
     const p = id === "kai" ? "kizuki." : "kizuki." + id + ".";
     return { session: p + "session.v1", favs: p + "favs.v1", history: p + "history.v1" };
