@@ -20,9 +20,14 @@
 <!-- ① ホーム -->
 <section id="screen-home" class="screen" aria-label="ホーム">
   <div class="home-top">
-    <p class="eyebrow">対話のための質問カード</p>
+    <p class="eyebrow" id="home-sub">対話のための質問カード</p>
     <h1 class="logo">KIZUKI<br>CARD</h1>
     <p class="lead">気づきカード</p>
+  </div>
+
+  <div class="deck-switch" role="group" aria-label="質問セットの切り替え">
+    <button class="deck-btn" id="deck-kai" aria-pressed="true">ふりかえり会版<span>100問</span></button>
+    <button class="deck-btn" id="deck-team" aria-pressed="false">チームビルド版<span>60問</span></button>
   </div>
 
   <div class="home-mid">

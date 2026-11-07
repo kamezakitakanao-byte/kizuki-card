@@ -1,7 +1,7 @@
 /* KIZUKI CARD service worker
    アプリ本体をキャッシュして、オフラインでも動くようにする。
    アプリを更新したら CACHE_VERSION の数字を上げてください。 */
-const CACHE_VERSION = "v1";
+const CACHE_VERSION = "v2";
 const CACHE_NAME = "kizuki-card-" + CACHE_VERSION;
 const ASSETS = [
   "./",

@@ -3,11 +3,12 @@
 (function () {
   "use strict";
 
-  const KEYS = {
-    session: "kizuki.session.v1",   // 今回のセッション（引いた質問・現在のカード・絞り込み）
-    favs: "kizuki.favs.v1",         // お気に入り（質問IDの配列）
-    history: "kizuki.history.v1"    // 履歴（{id, t}の配列）
-  };
+  // ふりかえり会版は従来のキーをそのまま使う（既存の保存データを壊さない）
+  function keysFor(id) {
+    const p = id === "kai" ? "kizuki." : "kizuki." + id + ".";
+    return { session: p + "session.v1", favs: p + "favs.v1", history: p + "history.v1" };
+  }
+  const DECK_KEY = "kizuki.deck.v1";
   const HISTORY_MAX = 500;
 
   /* ---------- 保存（localStorageが使えない場合はメモリで代替） ---------- */
@@ -15,7 +16,7 @@
   function load(key, fallback) {
     try {
       const raw = localStorage.getItem(key);
-      if (raw === null) return fallback;
+      if (raw === null) return key in mem ? mem[key] : fallback;
       return JSON.parse(raw);
     } catch (e) {
       return key in mem ? mem[key] : fallback;
@@ -26,21 +27,30 @@
     try { localStorage.setItem(key, JSON.stringify(value)); } catch (e) { /* 容量/プライベートモード */ }
   }
 
-  /* ---------- 状態 ---------- */
-  const byId = new Map(QUESTIONS.map(q => [q.id, q]));
-  const validId = id => byId.has(id);
+  /* ---------- 状態（デッキごと） ---------- */
+  let deck, KEYS, byId, CATS, LVLS, FOLLOW, QS;
+  let state;
+  const ui = { deepLast: -1, tab: "fav", pickCat: 0, pickLevel: 0 };
 
-  const s0 = load(KEYS.session, {});
-  const state = {
-    drawn: Array.isArray(s0.drawn) ? s0.drawn.filter(validId) : [],
-    current: validId(s0.current) ? s0.current : null,
-    cat: Number.isInteger(s0.cat) && s0.cat >= 0 && s0.cat <= 10 ? s0.cat : 0,     // 0=すべて
-    level: Number.isInteger(s0.level) && s0.level >= 0 && s0.level <= 4 ? s0.level : 0, // 0=すべて
-    favs: (load(KEYS.favs, []) || []).filter(validId),
-    history: (load(KEYS.history, []) || []).filter(h => h && validId(h.id))
-  };
-  // 画面内だけの一時状態
-  const ui = { deepLast: -1, tab: "fav", pickCat: state.cat, pickLevel: state.level, viewing: null };
+  function setDeck(id) {
+    deck = DECKS[id] || DECKS.kai;
+    KEYS = keysFor(deck.id);
+    CATS = deck.categories; LVLS = deck.levels; FOLLOW = deck.followups; QS = deck.questions;
+    byId = new Map(QS.map(q => [q.id, q]));
+    const validId = x => byId.has(x);
+    const s0 = load(KEYS.session, {}) || {};
+    state = {
+      drawn: Array.isArray(s0.drawn) ? s0.drawn.filter(validId) : [],
+      current: validId(s0.current) ? s0.current : null,
+      cat: Number.isInteger(s0.cat) && s0.cat >= 0 && s0.cat <= CATS.length ? s0.cat : 0,
+      level: Number.isInteger(s0.level) && s0.level >= 0 && s0.level <= 4 ? s0.level : 0,
+      favs: (load(KEYS.favs, []) || []).filter(validId),
+      history: (load(KEYS.history, []) || []).filter(h => h && validId(h.id))
+    };
+    ui.deepLast = -1; ui.pickCat = state.cat; ui.pickLevel = state.level;
+    save(DECK_KEY, deck.id);
+  }
+  setDeck(load(DECK_KEY, "kai"));
 
   const saveSession = () => save(KEYS.session, { drawn: state.drawn, current: state.current, cat: state.cat, level: state.level });
   const saveFavs = () => save(KEYS.favs, state.favs);
@@ -48,14 +58,14 @@
 
   /* ---------- ヘルパー ---------- */
   const $ = id => document.getElementById(id);
-  const catName = n => CATEGORIES[n - 1];
-  const levelLabel = n => "LEVEL " + n + "　" + LEVELS[n - 1].name;
+  const catName = n => CATS[n - 1];
+  const levelLabel = n => "LEVEL " + n + "　" + LVLS[n - 1].name;
   const inFilter = (q, cat, level) => (cat === 0 || q.category === cat) && (level === 0 || q.level === level);
-  const poolAll = () => QUESTIONS.filter(q => inFilter(q, state.cat, state.level));
+  const poolAll = () => QS.filter(q => inFilter(q, state.cat, state.level));
   const poolRemaining = () => poolAll().filter(q => !state.drawn.includes(q.id));
   const isFav = id => state.favs.includes(id);
   function filterText(cat, level) {
-    return (cat === 0 ? "全カテゴリー" : catName(cat)) + " ／ " + (level === 0 ? "全レベル" : "LEVEL " + level + " " + LEVELS[level - 1].name);
+    return (cat === 0 ? "全カテゴリー" : catName(cat)) + " ／ " + (level === 0 ? "全レベル" : "LEVEL " + level + " " + LVLS[level - 1].name);
   }
   function fmtDate(t) {
     const d = new Date(t);
@@ -121,6 +131,9 @@
 
   /* ---------- ① ホーム ---------- */
   function renderHome() {
+    $("home-sub").textContent = deck.sub;
+    $("deck-kai").setAttribute("aria-pressed", deck.id === "kai" ? "true" : "false");
+    $("deck-team").setAttribute("aria-pressed", deck.id === "team" ? "true" : "false");
     $("home-filter").textContent = filterText(state.cat, state.level);
     $("home-resume").hidden = state.current === null;
     $("home-fav-count").textContent = state.favs.length ? "（" + state.favs.length + "）" : "";
@@ -167,7 +180,7 @@
       $("card-level").textContent = "";
       if (remain === 0) {
         const all = state.cat === 0 && state.level === 0;
-        $("card-text").textContent = all ? "100問すべて終了しました" : "この条件の" + total + "問すべて終了しました";
+        $("card-text").textContent = all ? total + "問すべて終了しました" : "この条件の" + total + "問すべて終了しました";
         $("card-sub").textContent = all ? "おつかれさまでした。最初からやり直せます。" : "条件を変えるか、最初からやり直せます。";
       } else {
         $("card-text").textContent = "「次のカード」を押してね";
@@ -227,9 +240,9 @@
 
   $("card-deepbtn").addEventListener("click", () => {
     let i;
-    do { i = Math.floor(Math.random() * FOLLOWUPS.length); } while (i === ui.deepLast && FOLLOWUPS.length > 1);
+    do { i = Math.floor(Math.random() * FOLLOW.length); } while (i === ui.deepLast && FOLLOW.length > 1);
     ui.deepLast = i;
-    $("deep-text").textContent = FOLLOWUPS[i];
+    $("deep-text").textContent = FOLLOW[i];
     $("deep").hidden = false;
     $("card-deepbtn").textContent = "別の深掘り";
   });
@@ -253,21 +266,21 @@
   function renderPick() {
     const cats = $("pick-cats");
     cats.textContent = "";
-    cats.appendChild(optButton("全カテゴリーからランダム", "", "100問", ui.pickCat === 0, () => { ui.pickCat = 0; renderPick(); }));
-    CATEGORIES.forEach((name, i) => {
+    cats.appendChild(optButton("全カテゴリーからランダム", "", QS.length + "問", ui.pickCat === 0, () => { ui.pickCat = 0; renderPick(); }));
+    CATS.forEach((name, i) => {
       const n = i + 1;
-      const cnt = QUESTIONS.filter(q => q.category === n).length;
+      const cnt = QS.filter(q => q.category === n).length;
       cats.appendChild(optButton(n + ". " + name, "", cnt + "問", ui.pickCat === n, () => { ui.pickCat = n; renderPick(); }));
     });
 
     const lv = $("pick-levels");
     lv.textContent = "";
     lv.appendChild(optButton("すべてのレベル", "", "", ui.pickLevel === 0, () => { ui.pickLevel = 0; renderPick(); }));
-    LEVELS.forEach(L => {
+    LVLS.forEach(L => {
       lv.appendChild(optButton("LEVEL " + L.n + "　" + L.name, L.desc, "", ui.pickLevel === L.n, () => { ui.pickLevel = L.n; renderPick(); }));
     });
 
-    const cnt = QUESTIONS.filter(q => inFilter(q, ui.pickCat, ui.pickLevel)).length;
+    const cnt = QS.filter(q => inFilter(q, ui.pickCat, ui.pickLevel)).length;
     $("pick-summary").textContent = filterText(ui.pickCat, ui.pickLevel) + "：" + cnt + "問";
     $("pick-go").disabled = cnt === 0;
     $("pick-go").style.opacity = cnt === 0 ? .4 : 1;
@@ -275,7 +288,7 @@
   }
 
   $("pick-go").addEventListener("click", () => {
-    const cnt = QUESTIONS.filter(q => inFilter(q, ui.pickCat, ui.pickLevel)).length;
+    const cnt = QS.filter(q => inFilter(q, ui.pickCat, ui.pickLevel)).length;
     if (cnt === 0) return;
     state.cat = ui.pickCat; state.level = ui.pickLevel;
     state.current = null;
@@ -358,6 +371,16 @@
     }
   }
   document.querySelectorAll(".tab").forEach(t => t.addEventListener("click", () => { ui.tab = t.dataset.tab; renderLists(); }));
+
+  /* ---------- デッキ切替 ---------- */
+  function switchDeck(id) {
+    if (deck.id === id) return;
+    setDeck(id);
+    renderHome();
+    toast(deck.label + "に切り替えました");
+  }
+  $("deck-kai").addEventListener("click", () => switchDeck("kai"));
+  $("deck-team").addEventListener("click", () => switchDeck("team"));
 
   /* ---------- 戻るボタン ---------- */
   document.querySelectorAll("[data-go]").forEach(b => b.addEventListener("click", () => show(b.dataset.go)));
